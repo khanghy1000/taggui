@@ -120,7 +120,7 @@ class CaptionSettingsForm(QVBoxLayout):
         self.show_probabilities_check_box = SettingsBigCheckBox(
             key='wd_tagger_show_probabilities', default=True)
         self.min_probability_spin_box = FocusedScrollSettingsDoubleSpinBox(
-            key='wd_tagger_min_probability', default=0.4, minimum=0.01,
+            key='wd_tagger_min_probability', default=0.4, minimum=0.0,
             maximum=1)
         self.min_probability_spin_box.setSingleStep(0.01)
         self.max_tags_spin_box = FocusedScrollSettingsSpinBox(
@@ -152,7 +152,7 @@ class CaptionSettingsForm(QVBoxLayout):
             key='animetimm_show_probabilities', default=True)
         self.animetimm_min_probability_spin_box = (
             FocusedScrollSettingsDoubleSpinBox(
-                key='animetimm_min_probability', default=0.35, minimum=0.01,
+                key='animetimm_min_probability', default=0.35, minimum=0.0,
                 maximum=1))
         self.animetimm_min_probability_spin_box.setSingleStep(0.01)
         self.animetimm_use_custom_threshold_check_box = SettingsBigCheckBox(
