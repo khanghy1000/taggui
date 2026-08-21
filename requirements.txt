@@ -7,10 +7,11 @@ pyparsing==3.2.5
 PySide6==6.10.0
 transformers==4.48.3
 
-# Florence-2
+# Florence-2, AnimeTimm
 timm==1.0.20
+pandas>=2.0.0
 
-# WD Tagger
+# WD Tagger, AnimeTimm
 huggingface-hub==0.35.3
 onnxruntime==1.23.1
 onnxruntime-gpu==1.19.2; platform_system == "Linux"

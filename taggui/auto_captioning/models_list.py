@@ -1,4 +1,5 @@
 from auto_captioning.auto_captioning_model import AutoCaptioningModel
+from auto_captioning.models.animetimm import AnimeTimm
 from auto_captioning.models.florence_2 import Florence2, Florence2Promptgen
 from auto_captioning.models.joycaption import Joycaption
 from auto_captioning.models.kosmos_2 import Kosmos2
@@ -26,6 +27,15 @@ MODELS = [
     'xtuner/llava-llama-3-8b-v1_1-transformers',
     'vikhyatk/moondream2',
     'vikhyatk/moondream1',
+    'animetimm/convnextv2_huge.dbv4-full',
+    'animetimm/eva02_large_patch14_448.dbv4-full',
+    'animetimm/caformer_b36.dbv4-full',
+    'animetimm/swinv2_base_window8_256.dbv4-full',
+    'animetimm/vit_base_patch16_224.dbv4-full',
+    'animetimm/mobilenetv4_conv_aa_large.dbv4-full',
+    'animetimm/mobilenetv3_large_150d.dbv4-full',
+    'animetimm/mobilevitv2_200.dbv4-full',
+    'animetimm/resnet152.dbv4-full',
     'SmilingWolf/wd-eva02-large-tagger-v3',
     'SmilingWolf/wd-vit-large-tagger-v3',
     'SmilingWolf/wd-swinv2-tagger-v3',
@@ -78,6 +88,8 @@ def get_model_class(model_id: str) -> type[AutoCaptioningModel]:
         return Moondream2
     if 'phi-3' in lowercase_model_id:
         return Phi3Vision
+    if 'animetimm' in lowercase_model_id or "dbv4" in lowercase_model_id:
+        return AnimeTimm
     if 'wd' in lowercase_model_id and 'tagger' in lowercase_model_id:
         return WdTagger
     return AutoCaptioningModel

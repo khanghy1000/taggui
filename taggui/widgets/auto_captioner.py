@@ -9,6 +9,7 @@ from PySide6.QtWidgets import (QAbstractScrollArea, QDockWidget, QFormLayout,
                                QVBoxLayout, QWidget)
 
 from auto_captioning.captioning_thread import CaptioningThread
+from auto_captioning.models.animetimm import AnimeTimm
 from auto_captioning.models.wd_tagger import WdTagger
 from auto_captioning.models_list import MODELS, get_model_class
 from dialogs.caption_multiple_images_dialog import CaptionMultipleImagesDialog
@@ -141,6 +142,67 @@ class CaptionSettingsForm(QVBoxLayout):
         wd_tagger_settings_form.addRow('Maximum tags', self.max_tags_spin_box)
         wd_tagger_settings_form.addRow(tags_to_exclude_form)
 
+        self.animetimm_settings_form_container = QWidget()
+        animetimm_settings_form = QFormLayout(
+            self.animetimm_settings_form_container)
+        animetimm_settings_form.setLabelAlignment(Qt.AlignmentFlag.AlignRight)
+        animetimm_settings_form.setFieldGrowthPolicy(
+            QFormLayout.FieldGrowthPolicy.ExpandingFieldsGrow)
+        self.animetimm_show_probabilities_check_box = SettingsBigCheckBox(
+            key='animetimm_show_probabilities', default=True)
+        self.animetimm_min_probability_spin_box = (
+            FocusedScrollSettingsDoubleSpinBox(
+                key='animetimm_min_probability', default=0.35, minimum=0.01,
+                maximum=1))
+        self.animetimm_min_probability_spin_box.setSingleStep(0.01)
+        self.animetimm_use_custom_threshold_check_box = SettingsBigCheckBox(
+            key='animetimm_use_custom_threshold', default=False)
+        self.animetimm_max_tags_spin_box = FocusedScrollSettingsSpinBox(
+            key='animetimm_max_tags', default=30, minimum=1, maximum=999)
+        self.animetimm_include_general_check_box = SettingsBigCheckBox(
+            key='animetimm_include_general', default=True)
+        self.animetimm_include_character_check_box = SettingsBigCheckBox(
+            key='animetimm_include_character', default=True)
+        self.animetimm_include_artist_check_box = SettingsBigCheckBox(
+            key='animetimm_include_artist', default=False)
+        self.animetimm_include_rating_check_box = SettingsBigCheckBox(
+            key='animetimm_include_rating', default=False)
+        self.animetimm_replace_underscore_check_box = SettingsBigCheckBox(
+            key='animetimm_replace_underscore', default=True)
+
+        animetimm_tags_to_exclude_form = QFormLayout()
+        animetimm_tags_to_exclude_form.setRowWrapPolicy(
+            QFormLayout.RowWrapPolicy.WrapAllRows)
+        animetimm_tags_to_exclude_form.setFieldGrowthPolicy(
+            QFormLayout.FieldGrowthPolicy.ExpandingFieldsGrow)
+        self.animetimm_tags_to_exclude_text_edit = SettingsPlainTextEdit(
+            key='animetimm_tags_to_exclude')
+        animetimm_tags_to_exclude_form.addRow(
+            'Tags to exclude', self.animetimm_tags_to_exclude_text_edit)
+        set_text_edit_height(self.animetimm_tags_to_exclude_text_edit, 4)
+
+        animetimm_settings_form.addRow(
+            'Show probabilities', self.animetimm_show_probabilities_check_box)
+        animetimm_settings_form.addRow(
+            'Minimum probability', self.animetimm_min_probability_spin_box)
+        animetimm_settings_form.addRow(
+            'Custom threshold only',
+            self.animetimm_use_custom_threshold_check_box)
+        animetimm_settings_form.addRow(
+            'Maximum tags', self.animetimm_max_tags_spin_box)
+        animetimm_settings_form.addRow(
+            'General tags', self.animetimm_include_general_check_box)
+        animetimm_settings_form.addRow(
+            'Character tags', self.animetimm_include_character_check_box)
+        animetimm_settings_form.addRow(
+            'Artist tags', self.animetimm_include_artist_check_box)
+        animetimm_settings_form.addRow(
+            'Rating tags', self.animetimm_include_rating_check_box)
+        animetimm_settings_form.addRow(
+            'Replace underscores',
+            self.animetimm_replace_underscore_check_box)
+        animetimm_settings_form.addRow(animetimm_tags_to_exclude_form)
+
         self.toggle_advanced_settings_form_button = TallPushButton(
             'Show Advanced Settings')
 
@@ -216,6 +278,7 @@ class CaptionSettingsForm(QVBoxLayout):
 
         self.addLayout(basic_settings_form)
         self.addWidget(self.wd_tagger_settings_form_container)
+        self.addWidget(self.animetimm_settings_form_container)
         self.horizontal_line = HorizontalLine()
         self.addWidget(self.horizontal_line)
         self.addWidget(self.toggle_advanced_settings_form_button)
@@ -254,8 +317,11 @@ class CaptionSettingsForm(QVBoxLayout):
         # WD Tagger models have a `selected_tags.csv` file.
         selected_tags_paths = set(
             models_directory_path.glob('**/selected_tags.csv'))
+        # AnimeTimm models have a `preprocess.json` file.
+        preprocess_paths = set(
+            models_directory_path.glob('**/preprocess.json'))
         model_directory_paths = [str(path.parent) for path
-                                 in config_paths | selected_tags_paths]
+                                 in config_paths | selected_tags_paths | preprocess_paths]
         model_directory_paths.sort()
         print(f'Loaded {len(model_directory_paths)} model '
               f'{pluralize("path", len(model_directory_paths))}.')
@@ -263,32 +329,38 @@ class CaptionSettingsForm(QVBoxLayout):
 
     @Slot(str)
     def show_settings_for_model(self, model_id: str):
-        wd_tagger_widgets = [self.wd_tagger_settings_form_container]
-        non_wd_tagger_widgets = [
+        model_class = get_model_class(model_id)
+        is_wd_tagger_model = model_class == WdTagger
+        is_animetimm_model = model_class == AnimeTimm
+        is_tagger_model = is_wd_tagger_model or is_animetimm_model
+
+        self.wd_tagger_settings_form_container.setVisible(is_wd_tagger_model)
+        self.animetimm_settings_form_container.setVisible(is_animetimm_model)
+
+        self.device_label.setVisible(not is_wd_tagger_model)
+        self.device_combo_box.setVisible(not is_wd_tagger_model)
+
+        non_tagger_widgets = [
             self.prompt_label,
             self.prompt_text_edit,
             self.caption_start_label,
             self.caption_start_line_edit,
-            self.device_label,
-            self.device_combo_box,
             self.load_in_4_bit_container,
             self.remove_tag_separators_container,
             self.horizontal_line,
             self.toggle_advanced_settings_form_button,
             self.advanced_settings_form_container
         ]
-        is_wd_tagger_model = get_model_class(model_id) == WdTagger
-        for widget in wd_tagger_widgets:
-            widget.setVisible(is_wd_tagger_model)
-        for widget in non_wd_tagger_widgets:
-            widget.setVisible(not is_wd_tagger_model)
+        for widget in non_tagger_widgets:
+            widget.setVisible(not is_tagger_model)
         self.set_load_in_4_bit_visibility(self.device_combo_box.currentText())
 
     @Slot(str)
     def set_load_in_4_bit_visibility(self, device: str):
         model_id = self.model_combo_box.currentText()
-        is_wd_tagger_model = get_model_class(model_id) == WdTagger
-        if is_wd_tagger_model:
+        model_class = get_model_class(model_id)
+        is_tagger_model = model_class in (WdTagger, AnimeTimm)
+        if is_tagger_model:
             self.load_in_4_bit_container.setVisible(False)
             return
         is_load_in_4_bit_available = (self.is_bitsandbytes_available
@@ -339,6 +411,27 @@ class CaptionSettingsForm(QVBoxLayout):
                 'max_tags': self.max_tags_spin_box.value(),
                 'tags_to_exclude':
                     self.tags_to_exclude_text_edit.toPlainText()
+            },
+            'animetimm_settings': {
+                'show_probabilities':
+                    self.animetimm_show_probabilities_check_box.isChecked(),
+                'min_probability':
+                    self.animetimm_min_probability_spin_box.value(),
+                'use_custom_threshold':
+                    self.animetimm_use_custom_threshold_check_box.isChecked(),
+                'max_tags': self.animetimm_max_tags_spin_box.value(),
+                'include_general':
+                    self.animetimm_include_general_check_box.isChecked(),
+                'include_character':
+                    self.animetimm_include_character_check_box.isChecked(),
+                'include_artist':
+                    self.animetimm_include_artist_check_box.isChecked(),
+                'include_rating':
+                    self.animetimm_include_rating_check_box.isChecked(),
+                'replace_underscore':
+                    self.animetimm_replace_underscore_check_box.isChecked(),
+                'tags_to_exclude':
+                    self.animetimm_tags_to_exclude_text_edit.toPlainText()
             }
         }
 

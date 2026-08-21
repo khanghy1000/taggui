@@ -135,7 +135,10 @@ class AutoCaptioningModel:
             config_path = models_directory_path / self.model_id / 'config.json'
             tags_path = (models_directory_path / self.model_id
                          / 'selected_tags.csv')
-            if config_path.is_file() or tags_path.is_file():
+            preprocess_path = (models_directory_path / self.model_id
+                               / 'preprocess.json')
+            if (config_path.is_file() or tags_path.is_file()
+                    or preprocess_path.is_file()):
                 self.model_id = str(models_directory_path / self.model_id)
         # If the processor and model were previously loaded, use them.
         processor = self.thread_parent.processor

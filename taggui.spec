@@ -4,6 +4,7 @@ datas = [('clip-vit-base-patch32', 'clip-vit-base-patch32'),
          ('images/icon.ico', 'images')]
 hiddenimports = [
     'timm.models.layers',
+    'pandas',
 ]
 
 block_cipher = None
