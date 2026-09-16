@@ -9,6 +9,7 @@ from auto_captioning.models.llava_next import (LlavaNext34b, LlavaNextMistral,
                                                LlavaNextVicuna)
 from auto_captioning.models.moondream import Moondream1, Moondream2
 from auto_captioning.models.phi_3_vision import Phi3Vision
+from auto_captioning.models.pixai_tagger import PixaiTagger
 from auto_captioning.models.wd_tagger import WdTagger
 
 MODELS = [
@@ -27,6 +28,7 @@ MODELS = [
     'xtuner/llava-llama-3-8b-v1_1-transformers',
     'vikhyatk/moondream2',
     'vikhyatk/moondream1',
+    'pixai-labs/pixai-tagger-v1.0',
     'animetimm/convnextv2_huge.dbv4-full',
     'animetimm/eva02_large_patch14_448.dbv4-full',
     'animetimm/caformer_b36.dbv4-full',
@@ -90,6 +92,8 @@ def get_model_class(model_id: str) -> type[AutoCaptioningModel]:
         return Phi3Vision
     if 'animetimm' in lowercase_model_id or "dbv4" in lowercase_model_id:
         return AnimeTimm
+    if 'pixai' in lowercase_model_id and 'tagger' in lowercase_model_id:
+        return PixaiTagger
     if 'wd' in lowercase_model_id and 'tagger' in lowercase_model_id:
         return WdTagger
     return AutoCaptioningModel

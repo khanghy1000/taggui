@@ -10,6 +10,7 @@ from PySide6.QtWidgets import (QAbstractScrollArea, QDockWidget, QFormLayout,
 
 from auto_captioning.captioning_thread import CaptioningThread
 from auto_captioning.models.animetimm import AnimeTimm
+from auto_captioning.models.pixai_tagger import PixaiTagger
 from auto_captioning.models.wd_tagger import WdTagger
 from auto_captioning.models_list import MODELS, get_model_class
 from dialogs.caption_multiple_images_dialog import CaptionMultipleImagesDialog
@@ -203,6 +204,113 @@ class CaptionSettingsForm(QVBoxLayout):
             self.animetimm_replace_underscore_check_box)
         animetimm_settings_form.addRow(animetimm_tags_to_exclude_form)
 
+        self.pixai_tagger_settings_form_container = QWidget()
+        pixai_tagger_settings_form = QFormLayout(
+            self.pixai_tagger_settings_form_container)
+        pixai_tagger_settings_form.setLabelAlignment(
+            Qt.AlignmentFlag.AlignRight)
+        pixai_tagger_settings_form.setFieldGrowthPolicy(
+            QFormLayout.FieldGrowthPolicy.ExpandingFieldsGrow)
+        self.pixai_tagger_show_probabilities_check_box = SettingsBigCheckBox(
+            key='pixai_tagger_show_probabilities', default=True)
+        self.pixai_tagger_general_threshold_spin_box = (
+            FocusedScrollSettingsDoubleSpinBox(
+                key='pixai_tagger_general_threshold', default=0.17,
+                minimum=0.0, maximum=1))
+        self.pixai_tagger_general_threshold_spin_box.setSingleStep(0.01)
+        self.pixai_tagger_character_threshold_spin_box = (
+            FocusedScrollSettingsDoubleSpinBox(
+                key='pixai_tagger_character_threshold', default=0.27,
+                minimum=0.0, maximum=1))
+        self.pixai_tagger_character_threshold_spin_box.setSingleStep(0.01)
+        self.pixai_tagger_style_threshold_spin_box = (
+            FocusedScrollSettingsDoubleSpinBox(
+                key='pixai_tagger_style_threshold', default=0.15,
+                minimum=0.0, maximum=1))
+        self.pixai_tagger_style_threshold_spin_box.setSingleStep(0.01)
+        self.pixai_tagger_copyright_threshold_spin_box = (
+            FocusedScrollSettingsDoubleSpinBox(
+                key='pixai_tagger_copyright_threshold', default=0.24,
+                minimum=0.0, maximum=1))
+        self.pixai_tagger_copyright_threshold_spin_box.setSingleStep(0.01)
+        self.pixai_tagger_meta_threshold_spin_box = (
+            FocusedScrollSettingsDoubleSpinBox(
+                key='pixai_tagger_meta_threshold', default=0.17,
+                minimum=0.0, maximum=1))
+        self.pixai_tagger_meta_threshold_spin_box.setSingleStep(0.01)
+        self.pixai_tagger_rating_threshold_spin_box = (
+            FocusedScrollSettingsDoubleSpinBox(
+                key='pixai_tagger_rating_threshold', default=0.41,
+                minimum=0.0, maximum=1))
+        self.pixai_tagger_rating_threshold_spin_box.setSingleStep(0.01)
+        self.pixai_tagger_max_tags_spin_box = FocusedScrollSettingsSpinBox(
+            key='pixai_tagger_max_tags', default=50, minimum=1, maximum=999)
+        self.pixai_tagger_include_general_check_box = SettingsBigCheckBox(
+            key='pixai_tagger_include_general', default=True)
+        self.pixai_tagger_include_character_check_box = SettingsBigCheckBox(
+            key='pixai_tagger_include_character', default=True)
+        self.pixai_tagger_include_copyright_check_box = SettingsBigCheckBox(
+            key='pixai_tagger_include_copyright', default=True)
+        self.pixai_tagger_include_style_check_box = SettingsBigCheckBox(
+            key='pixai_tagger_include_style', default=True)
+        self.pixai_tagger_include_meta_check_box = SettingsBigCheckBox(
+            key='pixai_tagger_include_meta', default=False)
+        self.pixai_tagger_include_rating_check_box = SettingsBigCheckBox(
+            key='pixai_tagger_include_rating', default=False)
+        self.pixai_tagger_replace_underscore_check_box = SettingsBigCheckBox(
+            key='pixai_tagger_replace_underscore', default=True)
+
+        pixai_tagger_tags_to_exclude_form = QFormLayout()
+        pixai_tagger_tags_to_exclude_form.setRowWrapPolicy(
+            QFormLayout.RowWrapPolicy.WrapAllRows)
+        pixai_tagger_tags_to_exclude_form.setFieldGrowthPolicy(
+            QFormLayout.FieldGrowthPolicy.ExpandingFieldsGrow)
+        self.pixai_tagger_tags_to_exclude_text_edit = SettingsPlainTextEdit(
+            key='pixai_tagger_tags_to_exclude')
+        pixai_tagger_tags_to_exclude_form.addRow(
+            'Tags to exclude', self.pixai_tagger_tags_to_exclude_text_edit)
+        set_text_edit_height(self.pixai_tagger_tags_to_exclude_text_edit, 4)
+
+        pixai_tagger_settings_form.addRow(
+            'Show probabilities',
+            self.pixai_tagger_show_probabilities_check_box)
+        pixai_tagger_settings_form.addRow(
+            'General threshold',
+            self.pixai_tagger_general_threshold_spin_box)
+        pixai_tagger_settings_form.addRow(
+            'Character threshold',
+            self.pixai_tagger_character_threshold_spin_box)
+        pixai_tagger_settings_form.addRow(
+            'Style threshold',
+            self.pixai_tagger_style_threshold_spin_box)
+        pixai_tagger_settings_form.addRow(
+            'Copyright threshold',
+            self.pixai_tagger_copyright_threshold_spin_box)
+        pixai_tagger_settings_form.addRow(
+            'Meta threshold',
+            self.pixai_tagger_meta_threshold_spin_box)
+        pixai_tagger_settings_form.addRow(
+            'Rating threshold',
+            self.pixai_tagger_rating_threshold_spin_box)
+        pixai_tagger_settings_form.addRow(
+            'Maximum tags', self.pixai_tagger_max_tags_spin_box)
+        pixai_tagger_settings_form.addRow(
+            'General tags', self.pixai_tagger_include_general_check_box)
+        pixai_tagger_settings_form.addRow(
+            'Character tags', self.pixai_tagger_include_character_check_box)
+        pixai_tagger_settings_form.addRow(
+            'Copyright tags', self.pixai_tagger_include_copyright_check_box)
+        pixai_tagger_settings_form.addRow(
+            'Style tags', self.pixai_tagger_include_style_check_box)
+        pixai_tagger_settings_form.addRow(
+            'Meta tags', self.pixai_tagger_include_meta_check_box)
+        pixai_tagger_settings_form.addRow(
+            'Rating tags', self.pixai_tagger_include_rating_check_box)
+        pixai_tagger_settings_form.addRow(
+            'Replace underscores',
+            self.pixai_tagger_replace_underscore_check_box)
+        pixai_tagger_settings_form.addRow(pixai_tagger_tags_to_exclude_form)
+
         self.toggle_advanced_settings_form_button = TallPushButton(
             'Show Advanced Settings')
 
@@ -279,6 +387,7 @@ class CaptionSettingsForm(QVBoxLayout):
         self.addLayout(basic_settings_form)
         self.addWidget(self.wd_tagger_settings_form_container)
         self.addWidget(self.animetimm_settings_form_container)
+        self.addWidget(self.pixai_tagger_settings_form_container)
         self.horizontal_line = HorizontalLine()
         self.addWidget(self.horizontal_line)
         self.addWidget(self.toggle_advanced_settings_form_button)
@@ -332,10 +441,14 @@ class CaptionSettingsForm(QVBoxLayout):
         model_class = get_model_class(model_id)
         is_wd_tagger_model = model_class == WdTagger
         is_animetimm_model = model_class == AnimeTimm
-        is_tagger_model = is_wd_tagger_model or is_animetimm_model
+        is_pixai_tagger_model = model_class == PixaiTagger
+        is_tagger_model = (is_wd_tagger_model or is_animetimm_model
+                           or is_pixai_tagger_model)
 
         self.wd_tagger_settings_form_container.setVisible(is_wd_tagger_model)
         self.animetimm_settings_form_container.setVisible(is_animetimm_model)
+        self.pixai_tagger_settings_form_container.setVisible(
+            is_pixai_tagger_model)
 
         self.device_label.setVisible(not is_wd_tagger_model)
         self.device_combo_box.setVisible(not is_wd_tagger_model)
@@ -359,7 +472,7 @@ class CaptionSettingsForm(QVBoxLayout):
     def set_load_in_4_bit_visibility(self, device: str):
         model_id = self.model_combo_box.currentText()
         model_class = get_model_class(model_id)
-        is_tagger_model = model_class in (WdTagger, AnimeTimm)
+        is_tagger_model = model_class in (WdTagger, AnimeTimm, PixaiTagger)
         if is_tagger_model:
             self.load_in_4_bit_container.setVisible(False)
             return
@@ -432,6 +545,41 @@ class CaptionSettingsForm(QVBoxLayout):
                     self.animetimm_replace_underscore_check_box.isChecked(),
                 'tags_to_exclude':
                     self.animetimm_tags_to_exclude_text_edit.toPlainText()
+            },
+            'pixai_tagger_settings': {
+                'show_probabilities':
+                    self.pixai_tagger_show_probabilities_check_box
+                    .isChecked(),
+                'general_threshold':
+                    self.pixai_tagger_general_threshold_spin_box.value(),
+                'character_threshold':
+                    self.pixai_tagger_character_threshold_spin_box.value(),
+                'style_threshold':
+                    self.pixai_tagger_style_threshold_spin_box.value(),
+                'copyright_threshold':
+                    self.pixai_tagger_copyright_threshold_spin_box.value(),
+                'meta_threshold':
+                    self.pixai_tagger_meta_threshold_spin_box.value(),
+                'rating_threshold':
+                    self.pixai_tagger_rating_threshold_spin_box.value(),
+                'max_tags': self.pixai_tagger_max_tags_spin_box.value(),
+                'include_general':
+                    self.pixai_tagger_include_general_check_box.isChecked(),
+                'include_character':
+                    self.pixai_tagger_include_character_check_box.isChecked(),
+                'include_copyright':
+                    self.pixai_tagger_include_copyright_check_box.isChecked(),
+                'include_style':
+                    self.pixai_tagger_include_style_check_box.isChecked(),
+                'include_meta':
+                    self.pixai_tagger_include_meta_check_box.isChecked(),
+                'include_rating':
+                    self.pixai_tagger_include_rating_check_box.isChecked(),
+                'replace_underscore':
+                    self.pixai_tagger_replace_underscore_check_box
+                    .isChecked(),
+                'tags_to_exclude':
+                    self.pixai_tagger_tags_to_exclude_text_edit.toPlainText()
             }
         }
 
