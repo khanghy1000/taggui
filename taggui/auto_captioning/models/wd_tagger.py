@@ -14,10 +14,6 @@ import auto_captioning.captioning_thread as captioning_thread
 from auto_captioning.auto_captioning_model import AutoCaptioningModel
 from utils.image import Image
 
-KAOMOJIS = ['0_0', '(o)_(o)', '+_+', '+_-', '._.', '<o>_<o>', '<|>_<|>', '=_=',
-            '>_<', '3_3', '6_9', '>_o', '@_@', '^_^', 'o_o', 'u_u', 'x_x',
-            '|_|', '||_||']
-
 
 def get_tags_to_exclude(tags_to_exclude_string: str) -> list[str]:
     if not tags_to_exclude_string.strip():
@@ -45,9 +41,7 @@ class WdTaggerModel:
         with open(tags_path, 'r') as tags_file:
             reader = csv.DictReader(tags_file)
             for index, line in enumerate(reader):
-                tag = line['name']
-                if tag not in KAOMOJIS:
-                    tag = tag.replace('_', ' ')
+                tag = line['name'].replace('_', ' ')
                 self.tags.append(tag)
                 category = line['category']
                 if category == '9':

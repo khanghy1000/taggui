@@ -13,10 +13,6 @@ import auto_captioning.captioning_thread as captioning_thread
 from auto_captioning.auto_captioning_model import AutoCaptioningModel
 from utils.image import Image
 
-KAOMOJIS = ['0_0', '(o)_(o)', '+_+', '+_-', '._.', '<o>_<o>', '<|>_<|>',
-            '=_=', '>_<', '3_3', '6_9', '>_o', '@_@', '^_^', 'o_o', 'u_u',
-            'x_x', '|_|', '||_||']
-
 # Recommended per-category thresholds from the model card. They are the
 # per-category macro-F1 operating points from the full-vocabulary evaluation
 # and are also the defaults of the model's own pipeline.
@@ -122,7 +118,7 @@ class PixaiTaggerModel:
                 if score < threshold:
                     continue
                 formatted_tag = tag_name
-                if replace_underscore and tag_name not in KAOMOJIS:
+                if replace_underscore:
                     formatted_tag = tag_name.replace('_', ' ')
                 if (formatted_tag in tags_to_exclude_set
                         or tag_name in tags_to_exclude_set):
